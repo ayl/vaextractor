@@ -12,4 +12,6 @@ EOF
   s.files       = ["lib/vaextractor.rb"]
   s.homepage    = 'http://github.org/ayl/vaextractor'
   s.license     = 'GNU GPLv3'
+  s.add_runtime_dependency  'textoken', '1.1.2'
+  s.add_development_dependency  'minitest', '5.9.1'
 end

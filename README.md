@@ -38,6 +38,12 @@ The extract function outputs a ruby hash with the following values
 * :RElogmar - logMAR visual acuity for right eye
 * :LElogmar - logMAR visual acuity for left eye
 
+Visual acuity array is enumerated as:
+
+1. Numerator eg. 20, HM, CF
+2. Denominator eg. 30
+3. Adjustment eg. +
+4. Letters eg. 2
 
 ## Examples
 

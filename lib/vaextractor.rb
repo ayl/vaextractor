@@ -240,7 +240,7 @@ class VAExtractor
 				lva = logmar(varr)
 				p lva if debug
 				if bcva["OD"] == nil or (bcva["OD"][0] <= priority  and lva[0] < bcva["OD"][1])
-					bcva["OD"] = [priority, lva[0], lva[1]]
+					bcva["OD"] = [priority, lva[0].round(4), lva[1]]
 				end
 			end
 			puts "===OS" if debug
@@ -252,7 +252,7 @@ class VAExtractor
 				lva = logmar(varr)
 				p lva if debug
 				if bcva["OS"] == nil or (bcva["OS"][0] <= priority  and lva[0] < bcva["OS"][1])
-					bcva["OS"] = [priority, lva[0], lva[1]]
+					bcva["OS"] = [priority, lva[0].round(4), lva[1]]
 				end
 			end
 			bcva["OD"] = [nil, nil, [nil,nil,nil,nil]] if bcva["OD"] == nil

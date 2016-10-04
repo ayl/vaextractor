@@ -53,7 +53,7 @@ a.extract(rawtext)
 
 or simply
 
-```
+```ruby
 require 'vaextractor'
 a = VAExtractor.new
 a.extract(IO.read("examples/example1.txt"))

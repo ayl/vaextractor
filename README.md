@@ -27,6 +27,7 @@ gem install vaextractor
 require 'vaextractor'
 a = VAExtractor.new
 a.extract(IO.read("examples/example1.txt"))
+ => {:RE=>["20", "20", "-", "1"], :LE=>["20", "20", "+", "1"], :RElogmar=>0.0194, :LElogmar=>-0.025} 
 ```
 
 ## Output format

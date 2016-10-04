@@ -24,11 +24,42 @@ gem install vaextractor
 ## Usage
 
 ```ruby
+rawtext = <<-eos
+HPI: 1 year followup for glaucoma.
+
+VA: 
+OD: 20/30-2 ph 20/20-1
+OS: 20/20 +1 
+
+Tp: 20/21
+
+SLEx:
+L/L: wnl OU
+C/S: w/q OU
+K: clr OU
+AC: d/q OU
+I: r/r ou
+
+
+A/P
+Follow up in 1 year
+eos
+
+require 'vaextractor'
+a = VAExtractor.new
+a.extract(rawtext)
+ => {:RE=>["20", "20", "-", "1"], :LE=>["20", "20", "+", "1"], :RElogmar=>0.0194, :LElogmar=>-0.025} 
+```
+
+or simply
+
+```
 require 'vaextractor'
 a = VAExtractor.new
 a.extract(IO.read("examples/example1.txt"))
  => {:RE=>["20", "20", "-", "1"], :LE=>["20", "20", "+", "1"], :RElogmar=>0.0194, :LElogmar=>-0.025} 
 ```
+
 
 ## Output format
 

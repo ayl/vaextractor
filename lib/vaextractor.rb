@@ -62,6 +62,9 @@ class VAExtractor
 	def logmar(va)
 		if va[0] == "20"
 			manual = @usedsnellen[va[1].to_i]
+			if manual == nil  # TODO: other VA values need to be handled
+				return nil, nil
+			end
 			if va[2] == "+"
 				va[3] = "1" if va[3] == nil
 				denom = @@snellenlevels.index(va[1].to_i)
@@ -109,10 +112,9 @@ class VAExtractor
 	def findlaterality(pos, tokens, linestr)
 		walls = {"." => 10, "!" => 10, "?" => 10, "," => 5, "and" => 5}
 		answers = {}
-		debug = ""
 		revtoken = {}
 		tokens.each do |w, i|
-			revtoken[i] = w
+			revtoken[i] = w.downcase
 		end
 		tokens.each do |w, i|
 			w = w.upcase
@@ -140,12 +142,9 @@ class VAExtractor
 	end
 
 
-	def extract(rawtext)
+	def extract(rawtext, debug=false)
 		lines = rawtext.split("\n")
-		debug = false
 
-		rfound = false
-		lfound = false
 		found = false
 		vas = {"OD" => [], "OS" => []}
 		alreadychecked = {}
@@ -176,39 +175,45 @@ class VAExtractor
 				elsif lat != nil
 					vas[lat].push  [val, i, 5]
 				elsif lat == nil and vas["OD"].count == 0 and vas["OS"].count == 0
-					lat = searchpriorlines(lines[i-3..i-1].reverse)
+					priorlines = lines[i-3..i-1]
+					if priorlines != nil
+						lat = searchpriorlines(priorlines.reverse)
+					end
 					if lat == nil and vas["OD"].count == 0 and vas["OS"].count == 0
 						# most likely the VAs are either two in one line OD/OS or on two consecutive lines
 						found = false
-						arr2 = lines[i+1].scan(@@varegex)
-						if arr2.count > 0 and arr.count > 0
-							arr.each do |row|
-								row.shift
-								next if row[0] != nil  and row[3].to_i >= 5
-								vas["OD"].push [row, i, 0]
+						if lines.count > i+1
+							arr2 = lines[i+1].scan(@@varegex)
+							if arr2.count > 0 and arr.count > 0
+								arr.each do |row|
+									row.shift
+									next if row[0] != nil  and row[3].to_i >= 5
+									vas["OD"].push [row, i, 0]
+								end
+								arr2.each do |row|
+									row.shift
+									next if row[0] != nil  and row[3].to_i >= 5
+									vas["OS"].push [row, i+1, 0]
+								end
+								alreadychecked[i+1] = 1
+								found = true
+							elsif arr.count == 2
+								arr[0].shift
+								arr[1].shift
+								next if arr[0] != nil  and arr[0][3].to_i >= 5
+								next if arr[1] != nil  and arr[1][3].to_i >= 5
+								vas["OD"].push [arr[0], i, 0]
+								vas["OS"].push [arr[1], i, 0]
+								found = true
 							end
-							arr2.each do |row|
-								row.shift
-								next if row[0] != nil  and row[3].to_i >= 5
-								vas["OS"].push [row, i+1, 0]
-							end
-							alreadychecked[i+1] = 1
-							found = true
-						elsif arr.count == 2
-							arr[0].shift
-							arr[1].shift
-							next if arr[0] != nil  and arr[0][3].to_i >= 5
-							next if arr[1] != nil  and arr[1][3].to_i >= 5
-							vas["OD"].push [arr[0], i, 0]
-							vas["OS"].push [arr[1], i, 0]
-							found = true
 						end
 						if not found 
 							# worst case scenario, count up all the occurences of r/l and then take highest occuring freq
 							lat = runentirefreq(rawtext)
 							if lat == nil
 								#puts "ERROR: Laterality not found for #{val}"
-								raise ErrorLateralityNotFound
+								next  # TODO: handle case like 'SCALP ' where 'LP ' is captured by raises no laterality
+								# raise ErrorLateralityNotFound
 							else
 								vas[lat].push [val, i, 0]
 							end
@@ -239,6 +244,7 @@ class VAExtractor
 				p priority if debug
 				lva = logmar(varr)
 				p lva if debug
+				next if lva[0].nil?  # logmar can return nil here, maybe it shouldn't?
 				if bcva["OD"] == nil or (bcva["OD"][0] <= priority  and lva[0] < bcva["OD"][1])
 					bcva["OD"] = [priority, lva[0].round(4), lva[1]]
 				end
@@ -251,6 +257,7 @@ class VAExtractor
 				p priority if debug
 				lva = logmar(varr)
 				p lva if debug
+				next if lva[0].nil? # logmar can return nil here maybe it shouldn't?
 				if bcva["OS"] == nil or (bcva["OS"][0] <= priority  and lva[0] < bcva["OS"][1])
 					bcva["OS"] = [priority, lva[0].round(4), lva[1]]
 				end

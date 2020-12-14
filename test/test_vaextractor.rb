@@ -18,4 +18,19 @@ class VAExtractorTest < Minitest::Test
 		a = VAExtractor.new
 		assert_equal({:RE=>["20", "30", nil, nil], :LE=>[nil, nil, nil, nil], :RElogmar=>0.1761, :LElogmar=>nil} , a.extract(IO.read("examples/example4.txt")))
 	end
+
+	def test_find_laterality_and
+		a = VAExtractor.new
+		tokens = [['OS', 15], ['AND', 18]]
+		_, answers = a.findlaterality(20, tokens, '')
+		assert_equal({5 => [['OS', 5]]}, answers)
+	end
+
+	def test_find_laterality_amp
+		a = VAExtractor.new
+		tokens = [['OS', 15], ['!', 18]]
+		_, answers = a.findlaterality(20, tokens, '')
+		assert_equal({10 => [['OS', 5]]}, answers)
+	end
+
 end
